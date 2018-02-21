@@ -80,10 +80,20 @@ import './index.css';
       const history = this.state.history;
       const current = history[this.state.stepNumber];
       const winner = calculateWinner(current.squares);
+      var new_element_index = 0;
 
-      const moves = history.map((step, move) => {
+      const moves = history.map((step, move, arr) => {
+        console.log(step);
+        for (var i=0, len = arr[move].squares.length; i < len; i++){
+          if (arr[move].squares[i] !== arr[(move <= 0 ? 0 : move-1)].squares[i]){
+            new_element_index = i;
+            break;
+          }
+        }
+        var pos_x = Math.trunc((new_element_index/3)+1);
+        var pos_y = (new_element_index%3)+1;
         const desc = move ?
-          'Go to move #' + move :
+          'Go to move #' + move + ' at (' + pos_x + ',' + pos_y + ')':
           'Go to game start';
         return (
           <li key={move}>
