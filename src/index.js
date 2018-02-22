@@ -9,6 +9,23 @@ import './index.css';
       </button>
     );
   }
+
+  class HistoryButton extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = {
+          active: false,
+      };
+    }
+    render() {
+      return (                
+        <button className={this.props.move === this.props.step ? 'selected-move-button': null}
+                onClick={this.props.onClick}
+        >{this.props.desc}
+        </button>
+      );
+    }
+  }
   
   class Board extends React.Component {
     
@@ -49,6 +66,7 @@ import './index.css';
         }],
         stepNumber: 0,
         xIsNext: true,
+        lastIndexPlayed: 0
       };
     }
 
@@ -66,6 +84,7 @@ import './index.css';
         }]),
         stepNumber: history.length,
         xIsNext: !this.state.xIsNext,
+        lastIndexPlayed: i,
       });
     }
 
@@ -83,7 +102,6 @@ import './index.css';
       var new_element_index = 0;
 
       const moves = history.map((step, move, arr) => {
-        console.log(step);
         for (var i=0, len = arr[move].squares.length; i < len; i++){
           if (arr[move].squares[i] !== arr[(move <= 0 ? 0 : move-1)].squares[i]){
             new_element_index = i;
@@ -95,12 +113,18 @@ import './index.css';
         const desc = move ?
           'Go to move #' + move + ' at (' + pos_x + ',' + pos_y + ')':
           'Go to game start';
-        return (
-          <li key={move}>
-            <button onClick={() => this.jumpTo(move)}>{desc}</button>
-          </li>
-        );
+          return (
+            <li key={move}>
+                <HistoryButton 
+                  onClick={() => this.jumpTo(move)}
+                  desc={desc}
+                  move={move}
+                  step={this.state.stepNumber}
+                />
+            </li>        
+          );
       });
+    
   
       let status;
       if (winner) {
