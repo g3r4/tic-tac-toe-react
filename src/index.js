@@ -11,12 +11,11 @@ import './index.css';
   }
 
   class HistoryButton extends React.Component {
+
     constructor(props) {
       super(props);
-      this.state = {
-          active: false,
-      };
     }
+    
     render() {
       return (                
         <button className={this.props.move === this.props.step ? 'selected-move-button': null}
@@ -54,6 +53,57 @@ import './index.css';
       return (
         <div>
           { this.createSquaresForBoard(3) }
+        </div>
+      );
+    }
+  }
+
+  class MovesList extends React.Component {
+
+    constructor(props) {
+      super(props);
+      this.state = {
+        ascending: true
+      };
+    }
+
+    sortList = () => {
+      this.setState({
+        ascending: !this.state.ascending,
+      });
+    }
+
+    render(){
+      var new_element_index = 0;
+      const moves = this.props.history.map((step, move, arr) => {
+        for (var i=0, len = arr[move].squares.length; i < len; i++){
+          if (arr[move].squares[i] !== arr[(move <= 0 ? 0 : move-1)].squares[i]){
+            new_element_index = i;
+            break;
+          }
+        }
+        var pos_x = Math.trunc((new_element_index/3)+1);
+        var pos_y = (new_element_index%3)+1;
+        const desc = move ?
+          'Go to move #' + move + ' at (' + pos_x + ',' + pos_y + ')':
+          'Go to game start';
+          return (
+            <li key={move}>
+                <HistoryButton 
+                  onClick={() => this.props.onClick(move)}
+                  desc={desc}
+                  move={move}
+                  step={this.props.stepnumber}
+                />
+            </li>        
+          );
+      });
+      return (
+        <div>
+          <button onClick={this.sortList}>
+            {this.state.ascending ? 'Sorted by ascending order' : 'Sorted by descending order'}  
+          </button>
+          {this.state.ascending ? moves : moves.reverse()}
         </div>
       );
     }
@@ -101,32 +151,6 @@ import './index.css';
       const history = this.state.history;
       const current = history[this.state.stepNumber];
       const winner = calculateWinner(current.squares);
-      var new_element_index = 0;
-
-      const moves = history.map((step, move, arr) => {
-        for (var i=0, len = arr[move].squares.length; i < len; i++){
-          if (arr[move].squares[i] !== arr[(move <= 0 ? 0 : move-1)].squares[i]){
-            new_element_index = i;
-            break;
-          }
-        }
-        var pos_x = Math.trunc((new_element_index/3)+1);
-        var pos_y = (new_element_index%3)+1;
-        const desc = move ?
-          'Go to move #' + move + ' at (' + pos_x + ',' + pos_y + ')':
-          'Go to game start';
-          return (
-            <li key={move}>
-                <HistoryButton 
-                  onClick={() => this.jumpTo(move)}
-                  desc={desc}
-                  move={move}
-                  step={this.state.stepNumber}
-                />
-            </li>        
-          );
-      });
-    
   
       let status;
       if (winner) {
@@ -144,7 +168,10 @@ import './index.css';
           </div>
           <div className="game-info">
             <div>{status}</div>
-            <ol>{moves}</ol>
+            <MovesList 
+              history = {this.state.history}
+              stepnumber = {this.state.stepNumber}
+              onClick = {(step) => this.jumpTo(step)}/>
           </div>
         </div>
       );
