@@ -162,8 +162,10 @@ import './index.css';
       let status;
       if (winner) {
         status = 'Winner: ' + winner;
-      } else {
+      } else if (!winner && this.state.stepNumber < 9) {
         status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+      } else {
+        status = 'The game has ended in a draw';
       }
       return (
         <div className="game">
@@ -212,8 +214,6 @@ import './index.css';
 
   }
 
-
-  
   // ========================================
   
   ReactDOM.render(
