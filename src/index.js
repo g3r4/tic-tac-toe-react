@@ -3,9 +3,13 @@ import ReactDOM from 'react-dom';
 import './index.css';
 
   function Square(props) {
-    let highlightClass = props.weHaveAWinner === true && props.winnerSquares.includes(props.squareIndex)? 'highlight':'';
+    let highlightClass = props.weHaveAWinner === true && props.winnerSquares.includes(props.squareIndex)? 'highlight ':'';
+    var almost = '';
+    for (var i =0; i < props.potentialWinSquares.length; i++){
+      almost = props.potentialWinSquares[i].includes(props.squareIndex)?'almost ':'';
+    }
     return (
-      <button className={'square ' + highlightClass} onClick={props.onClick}>
+      <button className={'square ' + highlightClass + almost} onClick={props.onClick}>
         {props.value}
       </button>
     );
@@ -39,6 +43,7 @@ import './index.css';
                      weHaveAWinner = {this.props.weHaveAWinner}
                      winnerSquares = {this.props.winnerSquares}
                      squareIndex = {i}
+                     potentialWinSquares = {this.props.potentialWinSquares}
               />;
     }
 
@@ -117,6 +122,16 @@ import './index.css';
   class Game extends React.Component {
     constructor(props) {
       super(props);
+      this.lines = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ];
       this.state = {
         history: [{
           squares: Array(9).fill(null),
@@ -125,6 +140,7 @@ import './index.css';
         xIsNext: true,
         lastIndexPlayed: 0,
         winnerSquares: [],
+        potentialWinSquares: [],
         weHaveAWinner: false
       };
     }
@@ -158,6 +174,7 @@ import './index.css';
       const history = this.state.history;
       const current = history[this.state.stepNumber];
       const winner = this.calculateWinner(current.squares);
+      const potentialwins = this.giveMePotentialWins(current.squares);
   
       let status;
       if (winner) {
@@ -175,6 +192,7 @@ import './index.css';
             onClick={(i) => this.handleClick(i)}
             weHaveAWinner = {this.state.weHaveAWinner}
             winnerSquares = {this.state.winnerSquares}
+            potentialWinSquares = {this.state.potentialWinSquares}
           />
           </div>
           <div className="game-info">
@@ -189,18 +207,8 @@ import './index.css';
     }
 
     calculateWinner = (squares) => {
-      const lines = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6],
-      ];
-      for (let i = 0; i < lines.length; i++) {
-        const [a, b, c] = lines[i];
+      for (let i = 0; i < this.lines.length; i++) {
+        const [a, b, c] = this.lines[i];
         if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c] && !this.state.weHaveAWinner) {
           this.setState({
             weHaveAWinner: true,
@@ -210,6 +218,22 @@ import './index.css';
         }
       }
       return null;
+    }
+
+    giveMePotentialWins = (squares) => {
+      for (let i = 0; i < this.lines.length; i++) {
+        const [a, b, c] = this.lines[i];
+        if (squares[a] && (squares[a] === squares[b] || squares[a] === squares[c]) && !this.state.weHaveAWinner && 
+        !this.state.potentialWinSquares.some((element) => {return element.toString() === [a, b, c].toString()}) ) {
+          if ( (squares[a] === squares[b] || squares[b] === null) && (squares[a] === squares[c] || squares[c] === null)){
+            this.setState({
+              potentialWinSquares: [...this.state.potentialWinSquares, [a, b, c]]
+            });
+            return true;
+          }
+        }
+      }
+      return false;
     }
 
   }
