@@ -6,7 +6,7 @@ import './index.css';
     let highlightClass = props.weHaveAWinner === true && props.winnerSquares.includes(props.squareIndex)? 'highlight ':'';
     var almost = '';
     for (var i =0; i < props.potentialWinSquares.length; i++){
-      almost = props.potentialWinSquares[i].includes(props.squareIndex)?'almost ':'';
+      almost = (props.potentialWinSquares[i].includes(props.squareIndex) && props.weHaveAWinner === false)?'almost ':'';
     }
     return (
       <button className={'square ' + highlightClass + almost} onClick={props.onClick}>
